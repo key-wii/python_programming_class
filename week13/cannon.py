@@ -11,7 +11,7 @@ RED = (255, 0, 0)
 
 SCREEN_SIZE = (800, 600)
 
-
+#lmao test comment 
 def rand_color():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
 
