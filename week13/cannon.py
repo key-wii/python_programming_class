@@ -10,8 +10,7 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 
 SCREEN_SIZE = (800, 600)
-
-#lmao test comment 
+ 
 def rand_color():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
 
@@ -268,6 +267,11 @@ class Manager:
                 if event.key == pg.K_UP:
                     self.gun.move(-5)
                 elif event.key == pg.K_DOWN:
+                    self.gun.move(5)
+                #makes every arrow move the cannon now
+                elif event.key == pg.K_LEFT:
+                    self.gun.move(-5)
+                elif event.key == pg.K_RIGHT:
                     self.gun.move(5)
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
