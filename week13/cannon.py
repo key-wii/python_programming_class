@@ -261,6 +261,8 @@ class Manager:
                 30 - max(0, self.score_t.score()))))
             self.targets.append(VerticalMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
+            self.targets.append(FastMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
             self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
 
