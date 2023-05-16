@@ -119,12 +119,19 @@ class Cannon(GameObject):
         '''
         self.angle = np.arctan2(target_pos[1] - self.coord[1], target_pos[0] - self.coord[0])
 
-    def move(self, inc):
+    def moveV(self, inc):
         '''
         Changes vertical position of the gun.
         '''
         if (self.coord[1] > 30 or inc > 0) and (self.coord[1] < SCREEN_SIZE[1] - 30 or inc < 0):
             self.coord[1] += inc
+            
+    def moveH(self, inc):
+        '''
+        Changes vertical position of the gun.
+        '''
+        if (self.coord[0] > 30 or inc > 0) and (self.coord[0] < SCREEN_SIZE[0] - 30 or inc < 0):
+            self.coord[0] += inc
 
     def draw(self, screen):
         '''
@@ -266,9 +273,13 @@ class Manager:
                 done = True
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
-                    self.gun.move(-5)
+                    self.gun.moveV(-5)
                 elif event.key == pg.K_DOWN:
-                    self.gun.move(5)
+                    self.gun.moveV(5)
+                elif event.key == pg.K_LEFT:
+                    self.gun.moveH(-5)
+                elif event.key == pg.K_RIGHT:
+                    self.gun.moveH(5)
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.gun.activate()
