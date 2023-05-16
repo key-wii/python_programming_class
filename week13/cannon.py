@@ -293,6 +293,9 @@ class Target(GameObject):
         pass
 
 class MovingTargets(Target):
+    """
+    Creates moving targets and initiliazes their speed
+    """
     def __init__(self, coord=None, color=None, rad=30):
         super().__init__(coord, color, rad)
         self.vx = randint(-2, +2)
@@ -302,6 +305,40 @@ class MovingTargets(Target):
         self.coord[0] += self.vx
         self.coord[1] += self.vy
 
+class HorizontalMovingTargets(Target):
+    """
+    Creates horizontal only moving targets and initiliazes their speed
+    """
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vx = randint(-2, +2)
+
+    def move(self):
+        self.coord[0] += self.vx
+
+class VerticalMovingTargets(Target):
+    """
+    Creates vertical only moving targets and initiliazes their speed
+    """
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vy = randint(-2, +2)
+
+    def move(self):
+        self.coord[1] += self.vy
+
+class FastMovingTargets(Target):
+    """
+    Creates fast moving targets and inilitazes their speed
+    """
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vx = randint(-20, +20)
+        self.vy = randint(-20, +20)
+    
+    def move(self):
+        self.coord[0] += self.vx
+        self.coord[1] += self.vy
 
 class ScoreTable:
     '''
@@ -345,6 +382,12 @@ class Manager:
         '''
         for i in range(self.n_targets):
             self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
+            self.targets.append(HorizontalMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
+            self.targets.append(VerticalMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
+            self.targets.append(FastMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
             self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
