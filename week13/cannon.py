@@ -188,6 +188,13 @@ class MovingTargets(Target):
         self.coord[0] += self.vx
         self.coord[1] += self.vy
 
+class HorizontalMovingTargets(Target):
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vx = randint(-15, +15)
+
+    def move(self):
+        self.coord[0] += self.vx
 
 class ScoreTable:
     '''
@@ -267,11 +274,6 @@ class Manager:
                 if event.key == pg.K_UP:
                     self.gun.move(-5)
                 elif event.key == pg.K_DOWN:
-                    self.gun.move(5)
-                #makes every arrow move the cannon now
-                elif event.key == pg.K_LEFT:
-                    self.gun.move(-5)
-                elif event.key == pg.K_RIGHT:
                     self.gun.move(5)
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
