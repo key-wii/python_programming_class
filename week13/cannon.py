@@ -204,6 +204,16 @@ class VerticalMovingTargets(Target):
     def move(self):
         self.coord[1] += self.vy
 
+class FastMovingTargets(Target):
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vx = randint(-20, +20)
+        self.vy = randint(-20, +20)
+    
+    def move(self):
+        self.coord[0] += self.vx
+        self.coord[1] += self.vy
+
 class ScoreTable:
     '''
     Score table class.
