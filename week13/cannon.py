@@ -11,6 +11,8 @@ RED = (255, 0, 0)
 
 SCREEN_SIZE = (800, 600)
 
+#load the dvd png
+#img = pg.image.load('dvd.png')
 
 def rand_color():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -172,6 +174,7 @@ class Shell3(GameObject):
         '''
         Draws the ball on appropriate surface.
         '''
+        #screen.blit(img, (self.coord[0],self.coord[1]))
         pg.draw.circle(screen, self.color, self.coord, self.rad)
 
 class Cannon(GameObject):
