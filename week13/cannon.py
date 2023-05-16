@@ -191,7 +191,7 @@ class MovingTargets(Target):
 class HorizontalMovingTargets(Target):
     def __init__(self, coord=None, color=None, rad=30):
         super().__init__(coord, color, rad)
-        self.vx = randint(-15, +15)
+        self.vx = randint(-2, +2)
 
     def move(self):
         self.coord[0] += self.vx
@@ -199,7 +199,7 @@ class HorizontalMovingTargets(Target):
 class VerticalMovingTargets(Target):
     def __init__(self, coord=None, color=None, rad=30):
         super().__init__(coord, color, rad)
-        self.vy = randint(-15, +15)
+        self.vy = randint(-2, +2)
 
     def move(self):
         self.coord[1] += self.vy
@@ -248,6 +248,8 @@ class Manager:
             self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
             self.targets.append(HorizontalMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
+            self.targets.append(VerticalMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
             self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
