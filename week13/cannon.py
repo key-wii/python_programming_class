@@ -202,7 +202,7 @@ class VerticalMovingTargets(Target):
         self.vy = randint(-15, +15)
 
     def move(self):
-        self.coord[0] += self.vy
+        self.coord[1] += self.vy
 
 class ScoreTable:
     '''
@@ -246,6 +246,8 @@ class Manager:
         '''
         for i in range(self.n_targets):
             self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
+            self.targets.append(HorizontalMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
             self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
