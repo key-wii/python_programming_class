@@ -179,6 +179,9 @@ class Target(GameObject):
         pass
 
 class MovingTargets(Target):
+    """
+    Creates moving targets and initiliazes their speed
+    """
     def __init__(self, coord=None, color=None, rad=30):
         super().__init__(coord, color, rad)
         self.vx = randint(-2, +2)
@@ -189,6 +192,9 @@ class MovingTargets(Target):
         self.coord[1] += self.vy
 
 class HorizontalMovingTargets(Target):
+    """
+    Creates horizontal only moving targets and initiliazes their speed
+    """
     def __init__(self, coord=None, color=None, rad=30):
         super().__init__(coord, color, rad)
         self.vx = randint(-2, +2)
@@ -197,6 +203,9 @@ class HorizontalMovingTargets(Target):
         self.coord[0] += self.vx
 
 class VerticalMovingTargets(Target):
+    """
+    Creates vertical only moving targets and initiliazes their speed
+    """
     def __init__(self, coord=None, color=None, rad=30):
         super().__init__(coord, color, rad)
         self.vy = randint(-2, +2)
@@ -205,6 +214,9 @@ class VerticalMovingTargets(Target):
         self.coord[1] += self.vy
 
 class FastMovingTargets(Target):
+    """
+    Creates fast moving targets and inilitazes their speed
+    """
     def __init__(self, coord=None, color=None, rad=30):
         super().__init__(coord, color, rad)
         self.vx = randint(-20, +20)
