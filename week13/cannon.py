@@ -196,6 +196,14 @@ class HorizontalMovingTargets(Target):
     def move(self):
         self.coord[0] += self.vx
 
+class VerticalMovingTargets(Target):
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vy = randint(-15, +15)
+
+    def move(self):
+        self.coord[0] += self.vy
+
 class ScoreTable:
     '''
     Score table class.
