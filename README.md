@@ -7,4 +7,4 @@ Requires installations of python and pygame
 
 ### Link to Extra Credit Video: [https://youtu.be/7Gv7hdk1r8s](https://youtu.be/7Gv7hdk1r8s)
 
-# Run cannon.py in week13 to start the application!
+# Run cannon.py in week13 to start the application! Make sure your terminal directory is in the week13 folder!
