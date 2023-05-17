@@ -147,6 +147,80 @@ class Cannon(GameObject):
         gun_shape.append((gun_pos - vec_1).tolist())
         pg.draw.polygon(screen, self.color, gun_shape)
 
+class Cannon2(GameObject):
+    '''
+    Cannon class. Manages it's renderring, movement and striking.
+    '''
+    def __init__(self, coord=[SCREEN_SIZE[0] - 30, SCREEN_SIZE[1]//2], angle=0, max_pow=50, min_pow=10, color=RED):
+        '''
+        Constructor method. Sets coordinate, direction, minimum and maximum power and color of the gun.
+        '''
+        self.coord = coord
+        self.angle = angle
+        self.max_pow = max_pow
+        self.min_pow = min_pow
+        self.color = color
+        self.active = False
+        self.pow = min_pow
+    
+    def activate(self):
+        '''
+        Activates gun's charge.
+        '''
+        self.active = True
+
+    def gain(self, inc=2):
+        '''
+        Increases current gun charge power.
+        '''
+        if self.active and self.pow < self.max_pow:
+            self.pow += inc
+
+    def strike(self):
+        '''
+        Creates ball, according to gun's direction and current charge power.
+        '''
+        vel = self.pow
+        angle = self.angle
+        ball = Shell(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+        self.pow = self.min_pow
+        self.active = False
+        return ball
+        
+    def set_angle(self, target_pos):
+        '''
+        Sets gun's direction to target position.
+        '''
+        self.angle = np.arctan2(target_pos[1] - self.coord[1], target_pos[0] - self.coord[0])
+
+    def moveV(self, inc):
+        '''
+        Changes vertical position of the gun.
+        '''
+        if (self.coord[1] > 30 or inc > 0) and (self.coord[1] < SCREEN_SIZE[1] - 30 or inc < 0):
+            self.coord[1] += inc
+            
+    def moveH(self, inc):
+        '''
+        Changes vertical position of the gun.
+        '''
+        if (self.coord[0] > 30 or inc > 0) and (self.coord[0] < SCREEN_SIZE[0] - 30 or inc < 0):
+            self.coord[0] += inc
+
+    def draw(self, screen):
+        '''
+        Draws the gun on the screen.
+        '''
+        gun_shape = []
+        vec_1 = np.array([int(5*np.cos(self.angle - np.pi/2)), int(5*np.sin(self.angle - np.pi/2))])
+        vec_2 = np.array([int(self.pow*np.cos(self.angle)), int(self.pow*np.sin(self.angle))])
+        gun_pos = np.array(self.coord)
+        gun_shape.append((gun_pos + vec_1).tolist())
+        gun_shape.append((gun_pos + vec_1 + vec_2).tolist())
+        gun_shape.append((gun_pos + vec_2 - vec_1).tolist())
+        gun_shape.append((gun_pos - vec_1).tolist())
+        pg.draw.polygon(screen, self.color, gun_shape)
+        
 
 class Target(GameObject):
     '''
@@ -228,6 +302,7 @@ class Manager:
     def __init__(self, n_targets=1):
         self.balls = []
         self.gun = Cannon()
+        self.gun2 = Cannon2()
         self.targets = []
         self.score_t = ScoreTable()
         self.n_targets = n_targets
@@ -253,6 +328,7 @@ class Manager:
         if pg.mouse.get_focused():
             mouse_pos = pg.mouse.get_pos()
             self.gun.set_angle(mouse_pos)
+            self.gun2.set_angle(mouse_pos)
         
         self.move()
         self.collide()
@@ -271,15 +347,16 @@ class Manager:
         for event in events:
             if event.type == pg.QUIT:
                 done = True
+            # Player 1 Controls
             elif event.type == pg.KEYDOWN:
                 if event.key == pg.K_UP:
-                    self.gun.moveV(-5)
+                    self.gun.moveV(-15)
                 elif event.key == pg.K_DOWN:
-                    self.gun.moveV(5)
-                elif event.key == pg.K_LEFT:
-                    self.gun.moveH(-5)
+                    self.gun.moveV(15)
+                if event.key == pg.K_LEFT:
+                    self.gun.moveH(-15)
                 elif event.key == pg.K_RIGHT:
-                    self.gun.moveH(5)
+                    self.gun.moveH(15)
             elif event.type == pg.MOUSEBUTTONDOWN:
                 if event.button == 1:
                     self.gun.activate()
@@ -287,6 +364,22 @@ class Manager:
                 if event.button == 1:
                     self.balls.append(self.gun.strike())
                     self.score_t.b_used += 1
+            # Player 2 Controls
+            if event.type == pg.KEYDOWN:
+                if event.key == pg.K_w:
+                    self.gun2.moveV(-15)
+                elif event.key == pg.K_s:
+                    self.gun2.moveV(15)
+                if event.key == pg.K_a:
+                    self.gun2.moveH(-15)
+                elif event.key == pg.K_d:
+                    self.gun2.moveH(15)
+            if event.type == pg.KEYDOWN and event.key == pg.K_SPACE:
+                self.gun2.activate()
+            elif event.type == pg.KEYUP and event.key == pg.K_SPACE:
+                self.balls.append(self.gun2.strike())
+                self.score_t.b_used += 1
+            
         return done
 
     def draw(self, screen):
@@ -298,6 +391,7 @@ class Manager:
         for target in self.targets:
             target.draw(screen)
         self.gun.draw(screen)
+        self.gun2.draw(screen)
         self.score_t.draw(screen)
 
     def move(self):
@@ -314,6 +408,7 @@ class Manager:
         for i, target in enumerate(self.targets):
             target.move()
         self.gun.gain()
+        self.gun2.gain()
 
     def collide(self):
         '''
