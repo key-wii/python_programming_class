@@ -477,12 +477,12 @@ class Bomb(GameObject):
         Reflects bomb's velocity when bomb bumps into the screen corners. Implemetns inelastic rebounce.
         '''
         for i in range(2):
-            if self.coord[i] < self.rad:
+            if self.coord[i] <= self.rad:
                 self.coord[i] = self.rad
-                is_alive = False
-            elif self.coord[i] > SCREEN_SIZE[i] - self.rad:
+                self.is_alive = False
+            elif self.coord[i] >= SCREEN_SIZE[i] - self.rad:
                 self.coord[i] = SCREEN_SIZE[i] - self.rad
-                is_alive = False
+                self.is_alive = False
 
     def move(self, time=1, grav=0):
         '''
