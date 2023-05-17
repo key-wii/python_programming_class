@@ -12,8 +12,10 @@ RED = (255, 0, 0)
 SCREEN_SIZE = (800, 600)
 
 #load the dvd png
-# img = pg.image.load('dvd.png')
-# img = pg.transform.scale(img, (40,40))
+img = pg.image.load('dvd.png')
+img = pg.transform.scale(img, (40,40))
+img_bomb = pg.image.load('bomb.png')
+img_bomb = pg.transform.scale(img_bomb, (20,40))
 
 def rand_color():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -388,7 +390,7 @@ class Target(GameObject):
         Creates bomb
         '''
         angle = 0
-        ball = Bomb(list(self.coord), [int(0), int(0)])
+        ball = Bomb(list(self.coord), [0, 0])
         return ball
     
     def check_corners(self, refl_ort=0.8, refl_par=0.9):
@@ -498,7 +500,8 @@ class Bomb(GameObject):
         '''
         Draws the bomb on appropriate surface.
         '''
-        pg.draw.circle(screen, self.color, self.coord, self.rad)
+        screen.blit(img_bomb, (self.coord[0],self.coord[1]))
+        #pg.draw.circle(screen, self.color, self.coord, self.rad)
 
 
 class ScoreTable:
@@ -620,11 +623,11 @@ class Manager:
                 self.score_t.b_used += 1
         
         # Drop bomb from a target
-        self.bomb_target += 1
-        if self.bomb_target > len(self.targets):
-            self.bomb_target = 0
         self.bomb_cooldown -= 1
         if self.bomb_cooldown <= 0:
+            self.bomb_target += 1
+            if self.bomb_target > len(self.targets) - 1:
+                self.bomb_target = 0
             if len(self.targets) > 0:
                 self.bombs.append(self.targets[self.bomb_target].strike())
             self.bomb_cooldown = 2
