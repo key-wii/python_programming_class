@@ -11,6 +11,8 @@ RED = (255, 0, 0)
 
 SCREEN_SIZE = (800, 600)
 
+#load the dvd png
+#img = pg.image.load('dvd.png')
 
 def rand_color():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -72,6 +74,108 @@ class Shell(GameObject):
         '''
         pg.draw.circle(screen, self.color, self.coord, self.rad)
 
+class Shell2(GameObject):
+    '''
+    The ball class. Creates a ball, controls it's movement and implement it's rendering.
+    '''
+    def __init__(self, coord, vel, rad=20, color=None):
+        '''
+        Constructor method. Initializes ball's parameters and initial values.
+        '''
+        self.coord = coord
+        self.vel = vel
+        if color == None:
+            color = rand_color()
+        self.color = color
+        self.rad = rad
+        self.is_alive = True
+        self.reflectCounter = 0 #keeps track of how many times the ball has reflected off surfaces. Ball dies after 20 reflections
+
+    def check_corners(self, refl_ort=0.8, refl_par=0.9):
+        '''
+        Reflects ball's velocity when ball bumps into the screen corners. Bounces off without momentum loss
+        '''
+        for i in range(2):
+            if self.coord[i] < self.rad:
+                self.coord[i] = self.rad
+                self.vel[i] = -int(self.vel[i])
+                self.vel[1-i] = int(self.vel[1-i])
+                self.reflectCounter += 1 #increment reflection counter
+            elif self.coord[i] > SCREEN_SIZE[i] - self.rad:
+                self.coord[i] = SCREEN_SIZE[i] - self.rad
+                self.vel[i] = -int(self.vel[i])
+                self.vel[1-i] = int(self.vel[1-i])
+                self.reflectCounter += 1 #increment reflection counter
+
+    def move(self, time=1, grav=0):
+        '''
+        Moves the ball according to it's velocity and time step.
+        Changes the ball's velocity due to gravitational force.
+        '''
+        self.vel[1] += grav
+        for i in range(2):
+            self.coord[i] += time * self.vel[i]
+        self.check_corners()
+        if self.reflectCounter == 20: #if ball has reflected 20 times, ball dies
+            self.is_alive = False
+
+    def draw(self, screen):
+        '''
+        Draws the ball on appropriate surface.
+        '''
+        pg.draw.circle(screen, self.color, self.coord, self.rad)
+
+class Shell3(GameObject):
+    '''
+    The ball class. Creates a ball, controls it's movement and implement it's rendering. Is not affected by gravity
+    '''
+    def __init__(self, coord, vel, rad=20, color=None):
+        '''
+        Constructor method. Initializes ball's parameters and initial values.
+        '''
+        self.coord = coord
+        self.vel = vel
+        if color == None:
+            color = rand_color()
+        self.color = color
+        self.rad = rad
+        self.is_alive = True
+        self.reflectCounter = 0 #keeps track of how many times the ball has reflected off surfaces. Ball dies after 20 reflections
+
+    def check_corners(self, refl_ort=0.8, refl_par=0.9):
+        '''
+        Reflects ball's velocity when ball bumps into the screen corners. Bounces off without momentum loss
+        '''
+        for i in range(2):
+            if self.coord[i] < self.rad:
+                self.coord[i] = self.rad
+                self.vel[i] = -int(self.vel[i])
+                self.vel[1-i] = int(self.vel[1-i])
+                self.reflectCounter += 1 #increment reflection counter
+            elif self.coord[i] > SCREEN_SIZE[i] - self.rad:
+                self.coord[i] = SCREEN_SIZE[i] - self.rad
+                self.vel[i] = -int(self.vel[i])
+                self.vel[1-i] = int(self.vel[1-i])
+                self.reflectCounter += 1 #increment reflection counter
+
+    def move(self, time=1, grav=0):
+        '''
+        Moves the ball according to it's velocity and time step.
+        Changes the ball's velocity due to gravitational force.
+        '''
+        #self.vel[1] += grav
+        for i in range(2):
+            self.coord[i] += time * self.vel[i]
+        self.check_corners()
+        if self.reflectCounter == 20: #if ball has reflected 20 times, ball dies
+            self.is_alive = False
+
+    def draw(self, screen):
+        '''
+        Draws the ball on appropriate surface.
+        '''
+        #screen.blit(img, (self.coord[0],self.coord[1]))
+        pg.draw.circle(screen, self.color, self.coord, self.rad)
 
 class Cannon(GameObject):
     '''
@@ -88,6 +192,7 @@ class Cannon(GameObject):
         self.color = color
         self.active = False
         self.pow = min_pow
+        self.counter = 1 #keeps track of which ball to shoot
     
     def activate(self):
         '''
@@ -108,7 +213,15 @@ class Cannon(GameObject):
         '''
         vel = self.pow
         angle = self.angle
-        ball = Shell(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+        if self.counter == 1: #rotates through which ball to shoot
+            ball = Shell(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+            self.counter += 1
+        elif self.counter == 2: #shoots the second ball
+            ball = Shell2(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+            self.counter += 1
+        elif self.counter == 3: #shoots third ball and resets back to first
+            ball = Shell3(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+            self.counter = 1
         self.pow = self.min_pow
         self.active = False
         return ball
@@ -261,6 +374,9 @@ class Target(GameObject):
         pass
 
 class MovingTargets(Target):
+    """
+    Creates moving targets and initiliazes their speed
+    """
     def __init__(self, coord=None, color=None, rad=30):
         super().__init__(coord, color, rad)
         self.vx = randint(-2, +2)
@@ -270,6 +386,40 @@ class MovingTargets(Target):
         self.coord[0] += self.vx
         self.coord[1] += self.vy
 
+class HorizontalMovingTargets(Target):
+    """
+    Creates horizontal only moving targets and initiliazes their speed
+    """
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vx = randint(-2, +2)
+
+    def move(self):
+        self.coord[0] += self.vx
+
+class VerticalMovingTargets(Target):
+    """
+    Creates vertical only moving targets and initiliazes their speed
+    """
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vy = randint(-2, +2)
+
+    def move(self):
+        self.coord[1] += self.vy
+
+class FastMovingTargets(Target):
+    """
+    Creates fast moving targets and inilitazes their speed
+    """
+    def __init__(self, coord=None, color=None, rad=30):
+        super().__init__(coord, color, rad)
+        self.vx = randint(-20, +20)
+        self.vy = randint(-20, +20)
+    
+    def move(self):
+        self.coord[0] += self.vx
+        self.coord[1] += self.vy
 
 class ScoreTable:
     '''
@@ -314,6 +464,12 @@ class Manager:
         '''
         for i in range(self.n_targets):
             self.targets.append(MovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
+            self.targets.append(HorizontalMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
+            self.targets.append(VerticalMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
+                30 - max(0, self.score_t.score()))))
+            self.targets.append(FastMovingTargets(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
             self.targets.append(Target(rad=randint(max(1, 30 - 2*max(0, self.score_t.score())),
                 30 - max(0, self.score_t.score()))))
