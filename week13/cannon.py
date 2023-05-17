@@ -535,7 +535,7 @@ class Manager:
     def __init__(self, n_targets=1):
         self.balls = []
         self.bombs = []
-        self.bomb_cooldown = 10;
+        self.bomb_cooldown = 50;
         self.bomb_target = 0;
         self.gun = Cannon()
         self.gun2 = Cannon2()
@@ -630,7 +630,7 @@ class Manager:
                 self.bomb_target = 0
             if len(self.targets) > 0:
                 self.bombs.append(self.targets[self.bomb_target].strike())
-            self.bomb_cooldown = 2
+            self.bomb_cooldown = 30
             
         return done
 
