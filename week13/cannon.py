@@ -12,8 +12,8 @@ RED = (255, 0, 0)
 SCREEN_SIZE = (800, 600)
 
 #load the dvd png
-img = pg.image.load('dvd.png')
-img = pg.transform.scale(img, (40,40))
+# img = pg.image.load('dvd.png')
+# img = pg.transform.scale(img, (40,40))
 
 def rand_color():
     return (randint(0, 255), randint(0, 255), randint(0, 255))
@@ -382,6 +382,24 @@ class Target(GameObject):
         :return: None
         """
         pass
+    
+    def strike(self):
+        '''
+        Creates bomb
+        '''
+        angle = 0
+        ball = Bomb(list(self.coord), [int(0), int(0)])
+        return ball
+    
+    def check_corners(self, refl_ort=0.8, refl_par=0.9):
+        '''
+        Prevents target from leaving screen
+        '''
+        for i in range(2):
+            if self.coord[i] < self.rad:
+                self.coord[i] = self.rad
+            elif self.coord[i] > SCREEN_SIZE[i] - self.rad:
+                self.coord[i] = SCREEN_SIZE[i] - self.rad
 
 class MovingTargets(Target):
     """
@@ -395,6 +413,7 @@ class MovingTargets(Target):
     def move(self):
         self.coord[0] += self.vx
         self.coord[1] += self.vy
+        self.check_corners()
 
 class HorizontalMovingTargets(Target):
     """
@@ -406,6 +425,7 @@ class HorizontalMovingTargets(Target):
 
     def move(self):
         self.coord[0] += self.vx
+        self.check_corners()
 
 class VerticalMovingTargets(Target):
     """
@@ -417,6 +437,7 @@ class VerticalMovingTargets(Target):
 
     def move(self):
         self.coord[1] += self.vy
+        self.check_corners()
 
 class FastMovingTargets(Target):
     """
@@ -430,6 +451,55 @@ class FastMovingTargets(Target):
     def move(self):
         self.coord[0] += self.vx
         self.coord[1] += self.vy
+        self.check_corners()
+        
+
+class Bomb(GameObject):
+    '''
+    The bomb class. Creates a bomb, controls it's movement and implement it's rendering.
+    '''
+    def __init__(self, coord, vel, rad=10, color=None):
+        '''
+        Constructor method. Initializes bomb's parameters and initial values.
+        '''
+        self.coord = coord
+        self.vel = vel
+        if color == None:
+            color = rand_color()
+        self.color = color
+        self.rad = rad
+        self.is_alive = True
+
+    def check_corners(self, refl_ort=0.8, refl_par=0.9):
+        '''
+        Reflects bomb's velocity when bomb bumps into the screen corners. Implemetns inelastic rebounce.
+        '''
+        for i in range(2):
+            if self.coord[i] < self.rad:
+                self.coord[i] = self.rad
+                is_alive = False
+            elif self.coord[i] > SCREEN_SIZE[i] - self.rad:
+                self.coord[i] = SCREEN_SIZE[i] - self.rad
+                is_alive = False
+
+    def move(self, time=1, grav=0):
+        '''
+        Moves the bomb according to it's velocity and time step.
+        Changes the bomb's velocity due to gravitational force.
+        '''
+        self.vel[1] += grav
+        for i in range(2):
+            self.coord[i] += time * self.vel[i]
+        self.check_corners()
+        if self.vel[0]**2 + self.vel[1]**2 < 2**2 and self.coord[1] > SCREEN_SIZE[1] - 2*self.rad:
+            self.is_alive = False
+
+    def draw(self, screen):
+        '''
+        Draws the bomb on appropriate surface.
+        '''
+        pg.draw.circle(screen, self.color, self.coord, self.rad)
+
 
 class ScoreTable:
     '''
@@ -461,6 +531,9 @@ class Manager:
     '''
     def __init__(self, n_targets=1):
         self.balls = []
+        self.bombs = []
+        self.bomb_cooldown = 10;
+        self.bomb_target = 0;
         self.gun = Cannon()
         self.gun2 = Cannon2()
         self.targets = []
@@ -545,6 +618,16 @@ class Manager:
             elif event.type == pg.KEYUP and event.key == pg.K_SPACE:
                 self.balls.append(self.gun2.strike())
                 self.score_t.b_used += 1
+        
+        # Drop bomb from a target
+        self.bomb_target += 1
+        if self.bomb_target > len(self.targets):
+            self.bomb_target = 0
+        self.bomb_cooldown -= 1
+        if self.bomb_cooldown <= 0:
+            if len(self.targets) > 0:
+                self.bombs.append(self.targets[self.bomb_target].strike())
+            self.bomb_cooldown = 2
             
         return done
 
@@ -554,6 +637,8 @@ class Manager:
         '''
         for ball in self.balls:
             ball.draw(screen)
+        for bomb in self.bombs:
+            bomb.draw(screen)
         for target in self.targets:
             target.draw(screen)
         self.gun.draw(screen)
@@ -565,12 +650,19 @@ class Manager:
         Runs balls' and gun's movement method, removes dead balls.
         '''
         dead_balls = []
+        dead_bombs = []
         for i, ball in enumerate(self.balls):
             ball.move(grav=2)
             if not ball.is_alive:
                 dead_balls.append(i)
+        for i, bomb in enumerate(self.bombs):
+            bomb.move(grav=2)
+            if not bomb.is_alive:
+                dead_bombs.append(i)
         for i in reversed(dead_balls):
             self.balls.pop(i)
+        for i in reversed(dead_bombs):
+            self.bombs.pop(i)
         for i, target in enumerate(self.targets):
             target.move()
         self.gun.gain()
@@ -587,6 +679,9 @@ class Manager:
                 if target.check_collision(ball):
                     collisions.append([i, j])
                     targets_c.append(j)
+        for i, bomb in enumerate(self.bombs):
+            for j, target in enumerate(self.targets):
+                pass
         targets_c.sort()
         for j in reversed(targets_c):
             self.score_t.t_destr += 1
