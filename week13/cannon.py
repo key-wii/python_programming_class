@@ -275,6 +275,7 @@ class Cannon2(GameObject):
         self.color = color
         self.active = False
         self.pow = min_pow
+        self.counter = 1 #keeps track of which ball to shoot
     
     def activate(self):
         '''
@@ -295,7 +296,15 @@ class Cannon2(GameObject):
         '''
         vel = self.pow
         angle = self.angle
-        ball = Shell(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+        if self.counter == 1: #rotates through which ball to shoot
+            ball = Shell(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+            self.counter += 1
+        elif self.counter == 2: #shoots the second ball
+            ball = Shell2(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+            self.counter += 1
+        elif self.counter == 3: #shoots third ball and resets back to first
+            ball = Shell3(list(self.coord), [int(vel * np.cos(angle)), int(vel * np.sin(angle))])
+            self.counter = 1
         self.pow = self.min_pow
         self.active = False
         return ball
